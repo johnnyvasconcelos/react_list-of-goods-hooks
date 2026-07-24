@@ -2,6 +2,14 @@ import React, { useState } from 'react';
 import 'bulma/css/bulma.css';
 import './App.scss';
 
+enum SortType {
+  Alphabetic = 'alphabetic',
+  Length = 'length',
+  Reverse = 'reverse',
+  ReverseAlphabetic = 'reverse-alphabetic',
+  ReverseLength = 'reverse-length',
+}
+
 export const goodsFromServer: string[] = [
   'Dumplings',
   'Carrot',
@@ -17,20 +25,20 @@ export const goodsFromServer: string[] = [
 
 export const App: React.FC = () => {
   const [goodsCopy, setGoodsCopy] = useState([...goodsFromServer]);
-  const [lastChange, setLastChange] = useState('');
+  const [lastChange, setLastChange] = useState<SortType | ''>('');
 
   const handleSortAlphabetically = () => {
     const copy = [...goodsFromServer].sort();
 
     if (
-      lastChange === 'reverse' ||
-      lastChange === 'reverse-alphabetic' ||
-      lastChange === 'reverse-length'
+      lastChange === SortType.Reverse ||
+      lastChange === SortType.ReverseAlphabetic ||
+      lastChange === SortType.ReverseLength
     ) {
       copy.reverse();
-      setLastChange('reverse-alphabetic');
+      setLastChange(SortType.ReverseAlphabetic);
     } else {
-      setLastChange('alphabetic');
+      setLastChange(SortType.Alphabetic);
     }
 
     setGoodsCopy(copy);
@@ -40,20 +48,20 @@ export const App: React.FC = () => {
     const copy = [...goodsFromServer].sort((a, b) => a.length - b.length);
 
     if (
-      lastChange === 'reverse' ||
-      lastChange === 'reverse-alphabetic' ||
-      lastChange === 'reverse-length'
+      lastChange === SortType.Reverse ||
+      lastChange === SortType.ReverseAlphabetic ||
+      lastChange === SortType.ReverseLength
     ) {
       copy.reverse();
-      setLastChange('reverse-length');
+      setLastChange(SortType.ReverseLength);
     } else {
-      setLastChange('length');
+      setLastChange(SortType.Length);
     }
 
     setGoodsCopy(copy);
   };
 
-  const resetGoods = () => {
+  const handleReset = () => {
     setGoodsCopy([...goodsFromServer]);
     setLastChange('');
   };
@@ -63,17 +71,17 @@ export const App: React.FC = () => {
 
     setGoodsCopy(copy);
 
-    if (lastChange === 'alphabetic') {
-      setLastChange('reverse-alphabetic');
-    } else if (lastChange === 'reverse-alphabetic') {
-      setLastChange('alphabetic');
-    } else if (lastChange === 'length') {
-      setLastChange('reverse-length');
-    } else if (lastChange === 'reverse-length') {
-      setLastChange('length');
+    if (lastChange === SortType.Alphabetic) {
+      setLastChange(SortType.ReverseAlphabetic);
+    } else if (lastChange === SortType.ReverseAlphabetic) {
+      setLastChange(SortType.Alphabetic);
+    } else if (lastChange === SortType.Length) {
+      setLastChange(SortType.ReverseLength);
+    } else if (lastChange === SortType.ReverseLength) {
+      setLastChange(SortType.Length);
     } else if (lastChange === '') {
-      setLastChange('reverse');
-    } else if (lastChange === 'reverse') {
+      setLastChange(SortType.Reverse);
+    } else if (lastChange === SortType.Reverse) {
       setLastChange('');
     }
   };
@@ -84,7 +92,10 @@ export const App: React.FC = () => {
         <button
           type="button"
           className={`button is-info ${
-            lastChange.includes('alphabetic') ? '' : 'is-light'
+            lastChange === SortType.Alphabetic ||
+            lastChange === SortType.ReverseAlphabetic
+              ? ''
+              : 'is-light'
           }`}
           onClick={handleSortAlphabetically}
         >
@@ -94,7 +105,10 @@ export const App: React.FC = () => {
         <button
           type="button"
           className={`button is-success ${
-            lastChange.includes('length') ? '' : 'is-light'
+            lastChange === SortType.Length ||
+            lastChange === SortType.ReverseLength
+              ? ''
+              : 'is-light'
           }`}
           onClick={handleSortByLength}
         >
@@ -104,20 +118,30 @@ export const App: React.FC = () => {
         <button
           type="button"
           className={`button is-warning ${
-            lastChange.startsWith('reverse') ? '' : 'is-light'
+            lastChange === SortType.Reverse ||
+            lastChange === SortType.ReverseAlphabetic ||
+            lastChange === SortType.ReverseLength
+              ? ''
+              : 'is-light'
           }`}
           onClick={handleReverse}
         >
           Reverse
         </button>
 
-        <button
-          type="button"
-          className="button is-danger is-light"
-          onClick={resetGoods}
-        >
-          Reset
-        </button>
+        {(lastChange === SortType.Reverse ||
+          lastChange === SortType.ReverseAlphabetic ||
+          lastChange === SortType.Alphabetic ||
+          lastChange === SortType.Length ||
+          lastChange === SortType.ReverseLength) && (
+          <button
+            type="button"
+            className="button is-danger is-light"
+            onClick={handleReset}
+          >
+            Reset
+          </button>
+        )}
       </div>
 
       <ul>
